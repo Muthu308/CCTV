@@ -1,50 +1,28 @@
-// pages/register.js
-import { useState } from 'react';
-import Router from 'next/router';
+import { useState } from "react";
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [err, setErr] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-  async function onSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErr('');
-    try {
-      const r = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name })
-      });
-      if (!r.ok) {
-        const json = await r.json();
-        setErr(json?.error || 'Failed');
-        return;
-      }
-      // optional: auto-login by calling login endpoint or redirect to login page
-      Router.push('/login');
-    } catch (e) {
-      setErr('Network error');
-    }
-  }
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+  };
 
   return (
-    <div style={{ maxWidth: 480, margin: '2rem auto' }}>
-      <h2>Register</h2>
-      <form onSubmit={onSubmit}>
-        <label>Email<br/>
-          <input value={email} onChange={e=>setEmail(e.target.value)} type="email" required/>
-        </label><br/>
-        <label>Name (optional)<br/>
-          <input value={name} onChange={e=>setName(e.target.value)} />
-        </label><br/>
-        <label>Password<br/>
-          <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required/>
-        </label><br/>
-        <button type="submit">Register</button>
-      </form>
-      {err && <p style={{ color: 'red' }}>{err}</p>}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <h1>Register</h1>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <button type="submit">Register</button>
+      <p>{message}</p>
+    </form>
   );
 }
